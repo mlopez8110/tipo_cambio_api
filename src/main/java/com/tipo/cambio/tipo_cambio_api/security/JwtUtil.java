@@ -28,21 +28,25 @@ public class JwtUtil {
                 .compact(); 
     }
 
-
-    public String extraerUsername(String token) {
+    public boolean validateToken(String token) {
         try {
-            return Jwts.parser()
-                    .setSigningKey(secretKey)
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject();
-        } catch (ExpiredJwtException e) {
-            throw new RuntimeException("El token ha expirado", e);
-        } catch (JwtException e) {
-            throw new RuntimeException("Error al parsear el token JWT", e);
+            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            return true;
         } catch (Exception e) {
-            throw new RuntimeException("Error al extraer el nombre de usuario del token", e);
+            return false;
         }
+    }        
+
+    public String extractUsername(String token) {
+        return getClaims(token).getSubject();
+    }
+
+    // Extraer Claims
+    private Claims getClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody();
     }    
 
     public String extraerRol(String token) {
